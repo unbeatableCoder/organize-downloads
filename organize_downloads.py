@@ -1,17 +1,4 @@
 #!/usr/bin/env python3
-"""
-organize_downloads.py
-
-Organiza ficheiros de uma pasta de origem (por defeito ~/Downloads) movendo-os
-para as pastas padrão (~/Pictures, ~/Videos, ~/Music, ~/Documents, ~/Others)
-com base na extensão. Apenas standard library.
-
-Uso:
-    ./organize_downloads.py                # organiza ~/Downloads
-    ./organize_downloads.py -s /caminho     # organiza outra pasta
-    ./organize_downloads.py --dry-run       # só mostra o que faria
-    ./organize_downloads.py -v              # logs verbosos (DEBUG)
-"""
 
 from __future__ import annotations
 
@@ -21,25 +8,17 @@ import shutil
 import sys
 from pathlib import Path
 
-# ---------------------------------------------------------------------------
-# Mapeamento extensão -> pasta de destino (caminhos fixos, conforme pedido)
-# ---------------------------------------------------------------------------
-
 EXTENSION_MAP: dict[str, str] = {
-    # Imagens
     ".png": "Pictures", ".jpg": "Pictures", ".jpeg": "Pictures",
     ".gif": "Pictures", ".webp": "Pictures", ".svg": "Pictures",
     ".bmp": "Pictures", ".tiff": "Pictures", ".heic": "Pictures",
     ".ico": "Pictures", ".raw": "Pictures",
-    # Vídeos
     ".mp4": "Videos", ".mkv": "Videos", ".avi": "Videos",
     ".mov": "Videos", ".webm": "Videos", ".flv": "Videos",
     ".wmv": "Videos", ".m4v": "Videos", ".mpeg": "Videos",
-    # Áudio
     ".mp3": "Music", ".flac": "Music", ".wav": "Music",
     ".aac": "Music", ".ogg": "Music", ".m4a": "Music",
     ".opus": "Music", ".wma": "Music",
-    # Documentos
     ".pdf": "Documents", ".docx": "Documents", ".doc": "Documents",
     ".txt": "Documents", ".odt": "Documents", ".xlsx": "Documents",
     ".xls": "Documents", ".pptx": "Documents", ".ppt": "Documents",
@@ -63,17 +42,12 @@ def setup_logging(verbose: bool) -> None:
 
 
 def resolve_destination_dir(category: str) -> Path:
-    """Devolve ~/<Category>, criando a pasta se não existir."""
     dest = HOME / category
     dest.mkdir(parents=True, exist_ok=True)
     return dest
 
 
 def safe_destination_path(dest_dir: Path, filename: str) -> Path:
-    """
-    Evita sobrescrever ficheiros existentes.
-    Se 'foto.jpg' já existir, tenta 'foto_1.jpg', 'foto_2.jpg', etc.
-    """
     candidate = dest_dir / filename
     if not candidate.exists():
         return candidate
@@ -94,18 +68,16 @@ def categorize(file_path: Path) -> str:
 
 
 def organize(source_dir: Path, dry_run: bool) -> tuple[int, int]:
-    """Organiza os ficheiros. Devolve (movidos, falhados)."""
     if not source_dir.is_dir():
-        logger.error("Pasta de origem não existe: %s", source_dir)
+        logger.error("Source folder does not exist: %s", source_dir)
         sys.exit(1)
 
     moved = 0
     failed = 0
 
-    # sorted() para ordem determinística e previsível nos logs
     for entry in sorted(source_dir.iterdir()):
         if not entry.is_file():
-            continue  # ignora subpastas e links simbólicos para pastas
+            continue
 
         category = categorize(entry)
         dest_dir = resolve_destination_dir(category)
@@ -118,10 +90,10 @@ def organize(source_dir: Path, dry_run: bool) -> tuple[int, int]:
 
         try:
             shutil.move(str(entry), str(dest_path))
-            logger.info("Movido: %s -> %s", entry, dest_path)
+            logger.info("Moved: %s -> %s", entry, dest_path)
             moved += 1
         except (OSError, shutil.Error) as exc:
-            logger.error("Falhou mover %s: %s", entry, exc)
+            logger.error("Failed to move %s: %s", entry, exc)
             failed += 1
 
     return moved, failed
@@ -129,23 +101,23 @@ def organize(source_dir: Path, dry_run: bool) -> tuple[int, int]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Organiza ficheiros por extensão nas pastas padrão do utilizador."
+        description="Organizes files by extension into the standard user folders."
     )
     parser.add_argument(
         "-s", "--source",
         type=Path,
         default=HOME / "Downloads",
-        help="Pasta de origem (por defeito: ~/Downloads)",
+        help="Source folder (default: ~/Downloads)",
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Mostra o que seria feito sem mover nada",
+        help="Show what would be done without moving anything",
     )
     parser.add_argument(
         "-v", "--verbose",
         action="store_true",
-        help="Logs detalhados (DEBUG)",
+        help="Verbose logging (DEBUG)",
     )
     return parser.parse_args()
 
@@ -155,11 +127,11 @@ def main() -> None:
     setup_logging(args.verbose)
 
     mode = "DRY-RUN" if args.dry_run else "REAL"
-    logger.info("Início (%s) | origem: %s", mode, args.source)
+    logger.info("Starting (%s) | source: %s", mode, args.source)
 
     moved, failed = organize(args.source.expanduser().resolve(), args.dry_run)
 
-    logger.info("Concluído. Ficheiros processados: %d | falhas: %d", moved, failed)
+    logger.info("Done. Files processed: %d | failures: %d", moved, failed)
     if failed:
         sys.exit(1)
 

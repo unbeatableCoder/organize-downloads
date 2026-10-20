@@ -1,19 +1,19 @@
 # organize-downloads
 
-Script Python para organizar automaticamente ficheiros por extensão, movendo-os para as pastas padrão do utilizador (`~/Pictures`, `~/Videos`, `~/Music`, `~/Documents`, `~/Others`).
+Python script that automatically organizes files by extension, moving them into the standard user folders (`~/Pictures`, `~/Videos`, `~/Music`, `~/Documents`, `~/Others`).
 
-Usa apenas a standard library. Sem dependências.
+Standard library only. No dependencies.
 
-## Funcionalidades
+## Features
 
-- Mapeamento de extensões para pastas de destino
-- Criação automática das pastas se não existirem
-- Prevenção de conflitos (sufixo numérico em vez de sobrescrever)
-- Modo `--dry-run` para pré-visualizar sem mover nada
-- Logs detalhados no terminal
-- Integração opcional com `systemd --user` para correr automaticamente
+- Extension-based mapping to destination folders
+- Automatically creates destination folders if missing
+- Conflict prevention (numeric suffix instead of overwriting)
+- `--dry-run` mode to preview without moving anything
+- Detailed terminal logs
+- Optional `systemd --user` integration to run automatically
 
-## Instalação
+## Installation
 
 ```bash
 mkdir -p ~/.local/bin
@@ -21,23 +21,23 @@ cp organize_downloads.py ~/.local/bin/
 chmod +x ~/.local/bin/organize_downloads.py
 ```
 
-Garante que `~/.local/bin` está no `PATH`:
+Make sure `~/.local/bin` is in your `PATH`:
 
 ```bash
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-## Uso
+## Usage
 
 ```bash
-organize_downloads.py                # organiza ~/Downloads
-organize_downloads.py -s /caminho     # organiza outra pasta
-organize_downloads.py --dry-run       # mostra o que faria, sem mover
-organize_downloads.py -v              # logs verbosos
+organize_downloads.py                # organizes ~/Downloads
+organize_downloads.py -s /path       # organizes another folder
+organize_downloads.py --dry-run       # shows what would happen, no moves
+organize_downloads.py -v              # verbose logs
 ```
 
-## Automatização (systemd timer)
+## Automation (systemd timer)
 
 ```bash
 mkdir -p ~/.config/systemd/user
@@ -46,23 +46,23 @@ systemctl --user daemon-reload
 systemctl --user enable --now organize-downloads.timer
 ```
 
-Verificar:
+Check:
 
 ```bash
 systemctl --user list-timers organize-downloads.timer
 journalctl --user -u organize-downloads.service
 ```
 
-## Mapeamento de extensões
+## Extension mapping
 
-| Categoria   | Extensões                                              | Destino        |
-|-------------|---------------------------------------------------------|-----------------|
-| Imagens     | png, jpg, jpeg, gif, webp, svg, bmp, tiff, heic, ico, raw | `~/Pictures`   |
-| Vídeos      | mp4, mkv, avi, mov, webm, flv, wmv, m4v, mpeg            | `~/Videos`     |
-| Áudio       | mp3, flac, wav, aac, ogg, m4a, opus, wma                 | `~/Music`      |
-| Documentos  | pdf, docx, doc, txt, odt, xlsx, xls, pptx, ppt, epub, csv, md, rtf, ods | `~/Documents` |
-| Outros      | qualquer outra extensão                                  | `~/Others`     |
+| Category  | Extensions                                                             | Destination    |
+|-----------|-------------------------------------------------------------------------|-----------------|
+| Images    | png, jpg, jpeg, gif, webp, svg, bmp, tiff, heic, ico, raw                | `~/Pictures`   |
+| Videos    | mp4, mkv, avi, mov, webm, flv, wmv, m4v, mpeg                            | `~/Videos`     |
+| Audio     | mp3, flac, wav, aac, ogg, m4a, opus, wma                                 | `~/Music`      |
+| Documents | pdf, docx, doc, txt, odt, xlsx, xls, pptx, ppt, epub, csv, md, rtf, ods   | `~/Documents`  |
+| Other     | any other extension                                                      | `~/Others`     |
 
-## Licença
+## License
 
-MIT. Ver [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
