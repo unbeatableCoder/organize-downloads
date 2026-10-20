@@ -1,0 +1,6 @@
+[Unit]
+Description=Organiza a pasta Downloads por extensao
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/organize_downloads.py
